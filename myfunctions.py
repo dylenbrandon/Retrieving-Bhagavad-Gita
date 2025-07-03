@@ -56,7 +56,7 @@ def display_menu(option_dict):
         if key == 7:
             value += '\t    [CTRL + C] will terminate the process'
         print(f'    [{key}] {value}')
-        if key in [2, 5]:
+        if key in [2, 6]:
             print(f'    {drawline(max_len)}')
 
     print(f'{line}')
@@ -86,7 +86,7 @@ def display_sample():
 def include_extra():
     '''Returns True if users want to write additional content to the output file; False otherwise.'''
     print("""
-Do your want to write the following to the output file as well?
+Do your want to write all of the following to the output file as well?
     - Transliteration: Transliteration of the Original Verse
     - Words Meaning: Exact meaning of the transliterated words
     - Commentary: Extensive explanation of the verse.
@@ -163,19 +163,19 @@ def get_commentary_en(html):
 
 def get_audio_sa():
     """Extract and download Audio (in Sanskrit) of the verse."""
-    print("Audio version of the verse is NOT DOWNLOADABLE at the movement.")
+    print("Audio version of the verse is NOT DOWNLOADABLE at the moment.")
     # SOME TASK
     # SOME TASK
 
 
-def get_option(info, options):
+def get_option(chapter_and_verse, menu_options):
     """Returns (Selected Options, Chapter Number and Verse Number)"""
     # Note: This function calls an sub function called get_retrieving_info() itself
     msg = ""
     while True:
         print(f'{msg}')
-        display_menu(options)
-        keys = [i for i in options.keys()]
+        display_menu(menu_options)
+        keys = [i for i in menu_options.keys()]
         try:
             user_input = int(input(
                 f'\nChoose and Enter an option {keys}: '))
@@ -183,7 +183,7 @@ def get_option(info, options):
                 msg = f'Error: {user_input} not in {keys}'
                 continue
             time.sleep(0.5)
-            result = f'[{user_input}] : {options[user_input]}'
+            result = f'[{user_input}] : {menu_options[user_input]}'
             len_r = len(result) + 1
             print(drawline(len_r))
             print(result)
@@ -195,7 +195,10 @@ def get_option(info, options):
 
             # Read Me
             elif user_input == 1:
-                print('Not Available at the movement.')
+                print('Web Scraping chapters and verses of the Holy Bhagavad Gita.')
+                print('With options to retrieve the original Sanksrit, Transliteration, Word Meaning and Commentary.')
+                print('Main URL from where we are retrieving data.')
+                print('https://holy-bhagavad-gita.org')
                 pause()
 
             # Option: Print Sample
@@ -205,10 +208,10 @@ def get_option(info, options):
 
             # Option: Retrieve
             elif user_input in [3, 4, 5]:
-                return get_retrieving_info(user_input, info)
+                return get_retrieving_info(user_input, chapter_and_verse)
                 break
             elif user_input == 6:
-                return randChapterVerse(user_input, info)
+                return randChapterVerse(user_input, chapter_and_verse)
         except KeyboardInterrupt: exit('Abort!')
         except EOFError:
             msg = "Enter 'CTRL + C' to exit."
@@ -218,7 +221,7 @@ def get_option(info, options):
             continue
 
 
-def get_retrieving_info(option, info):
+def get_retrieving_info(option, chapter_and_verse):
     """Returns '(Selected Options, Chapter Number and Verse Number)' based on user inputs"""
     # Note: This function is a part of get_option()
 
@@ -228,11 +231,10 @@ def get_retrieving_info(option, info):
 
     # Option: Retrieve: All Verses from a Chapter & Specific Verse from a Specific Chapter
     elif option in [4, 5]:
-
         print(
-            f'\nThe Bhagavad Gita has {len(info.keys())} chapters.')
+            f'\nThe Bhagavad Gita has {len(chapter_and_verse.keys())} chapters.')
         while True:
-            chap = [chap for chap in info.keys()]
+            chap = [chap for chap in chapter_and_verse.keys()]
             chap_range = f'{chap[0]} - {chap[-1]}'
             try:
                 chap_opt = int(
@@ -244,15 +246,15 @@ def get_retrieving_info(option, info):
                 # For: All Verses from a Chapter
                 if option == 4:
                     print(
-                        f'Will retrieve {info[chap_opt]} verses from chapter {chap_opt}')
+                        f'Will retrieve {chapter_and_verse[chap_opt]} verses from chapter {chap_opt}')
                     return option, chap_opt, 1
 
                 # For: Specific Verse from a Specific Chapter
                 print(
-                    f'\nChapter {chap_opt} has {info[chap_opt]} verses.')
+                    f'\nChapter {chap_opt} has {chapter_and_verse[chap_opt]} verses.')
                 while True:
                     try:
-                        total_verse = info[chap_opt]
+                        total_verse = chapter_and_verse[chap_opt]
                         verse_range = f'1 - {total_verse}'
                         verse_opt = int(
                             input(f'Choose and enter a verse number [{verse_range}]\n: '))
@@ -284,11 +286,11 @@ def get_retrieving_info(option, info):
 # # The End
 
 
-def randChapterVerse(opt, info):
+def randChapterVerse(opt, chapter_and_verse):
     '''Returns Random Chapter number, Verse number'''
     import random
     '''random quote'''
-    chapter = [k for k in info.keys()]
+    chapter = [k for k in chapter_and_verse.keys()]
     randChapter = random.randrange(1, len(chapter) + 1)
-    randVerse = random.randrange(1, info[randChapter] + 1)
+    randVerse = random.randrange(1, chapter_and_verse[randChapter] + 1)
     return opt, randChapter, randVerse

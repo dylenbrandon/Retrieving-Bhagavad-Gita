@@ -14,26 +14,43 @@ import myfunctions as fn
 main_url = "https://www.holy-bhagavad-gita.org"
 
 # Chapter and verse information i.e Chapter Number: Verse Count
-info = {1: 47, 2: 72, 3: 43, 4: 42, 5: 29, 6: 47, 7: 30, 8: 28, 9: 34,
-        10: 42, 11: 55, 12: 20, 13: 35, 14: 27, 15: 20, 16: 24, 17: 28, 18: 78}
+chapter_and_verse = {1: 47, 
+        2: 72, 
+        3: 43, 
+        4: 42, 
+        5: 29, 
+        6: 47, 
+        7: 30, 
+        8: 28, 
+        9: 34,
+        10: 42, 
+        11: 55, 
+        12: 20, 
+        13: 35, 
+        14: 27, 
+        15: 20, 
+        16: 24, 
+        17: 28, 
+        18: 78}
 
 # list of all available options
-options = {}
-options[1] = "Read Me"
-options[2] = "Sample"
-options[3] = f"Retrieve: Everything - {sum(info.values())} verses"
-options[4] = f"Retrieve: All Verses from a chapter - {len(info.keys())} chapters"
-options[5] = "Retrieve: Specific Verse from a specific chapter"
-options[6] = "Random Quote"
-options[7] = "Exit"
+menu_options = {}
+menu_options[1] = "Read Me"
+menu_options[2] = "Example Verse"
+menu_options[3] = f"Retrieve: Everything - {sum(chapter_and_verse.values())} Verses"
+menu_options[4] = f"Retrieve: Specific Chapter - {len(chapter_and_verse.keys())} Chapters"
+menu_options[5] = "Retrieve: Specific Verse from a Specific Chapter"
+menu_options[6] = "Retrieve: Random Quote"
+menu_options[7] = "Exit"
 
 
 # Default Chapter and Verse number
 chapter_num = verse_num = 1
 
 selected_option, selected_chapter, selected_verse = fn.get_option(
-    info, options)
-if not selected_option == 6:
+    chapter_and_verse, menu_options)
+if not selected_option == 6: # If the user wants more than just a random quote.
+    # Give user the option to include extra data
     include_addt = fn.include_extra()
     # Getting file name from the user
     filename = fn.get_filename()
@@ -50,14 +67,14 @@ unique_chapter = list()
 # selected_chapter = 1
 # selected_verse = 4
 
-if selected_option == 4:    # Options Reterive Specific Chapter
+if selected_option == 4:    # Options Retrieve Specific Chapter
     chapter_num = selected_chapter
-if selected_option in [5, 6]:    # Options Reterive Specific Verse and Print random verse
+if selected_option in [5, 6]:    # Options Retrieve Specific Verse and Print random verse
     chapter_num = selected_chapter
     verse_num = selected_verse
 
 '''Main'''
-print('Please wait..')
+print('Retrieving, please wait..')
 try:
     while True:
         if chapter_num > 18: break
@@ -78,7 +95,7 @@ try:
                 breadcrum = soup.find('div', id="breadcrumb")
                 print('Done!')
 
-                # Writing retrieved data into text file.
+                # Get the desired content from the url
                 chap_title = fn.getC_title(breadcrum, chapter_num)
                 verse_title = fn.getV_title(article)
                 originalVerse = fn.get_originalVerse(article)
@@ -86,13 +103,15 @@ try:
                 wordMeanings_en = fn.get_wordMeanings_en(article)
                 translation_en = fn.get_translation_en(article)
                 commentary_en = fn.get_commentary_en(article)
-                if selected_option == 6:
+                # Option 6 - The user wants a random quote.
+                if selected_option == 6:  
                     fn.clear_screen()
                     print(verse_title)
                     print(translation_en)
                     fn.pause()
                     exit('Bye..')
 
+                # Write retrieved data into text file.
                 with open(filename, 'at', encoding="UTF-8") as fh:
                     if chap_title not in unique_chapter:
                         fh.write(f'\n{fn.drawline(len(chap_title))}\n')
@@ -108,23 +127,23 @@ try:
                     fh.write(f'### {translation_en}\n\n')
                     if include_addt:
                         fh.write(f'{commentary_en}\n\n')
-
+                # Option 5 - Retrieve: Specific verse from a specific chapter"
                 if selected_option == 5:
                     print(
                         f'\nRetrieved verse {verse_num} from Chapter {chapter_num}')
                     print(f'File saved as {filename} on local folder.')
                     break
 
-            # Increasing verse number for each iteration
+            # Increment verse number each iteration
             verse_num += 1
         elif resp.status_code == 404:
             # Breaking out after retrieving single chapter as per the user request
             if selected_option == 4:
                 print(
-                    f'\nRetrieved all {info[chapter_num]} verses from Chapter {chapter_num}')
+                    f'\nRetrieved all {chapter_and_verse[chapter_num]} verses from Chapter {chapter_num}')
                 print(f'File saved as {filename} on local folder.')
                 break
-            # Increasing chapter number by and and resetting verse number to 1. When encountering 404 Not Found
+            # Increment chapter number by one and resetting verse number to 1 whenever we encounter a 404 error.
             chapter_num += 1
             verse_num = 1
 except KeyboardInterrupt:
@@ -133,7 +152,7 @@ except KeyboardInterrupt:
 if not selected_option == 6:
     with open(filename, 'at', encoding="UTF-8") as en: en.write("\\# The End.")
     if selected_option == 3:
-        print(f'Retrieved all {sum(info.values())} verses from 18 chapters.')
+        print(f'Retrieved all {sum(chapter_and_verse.values())} verses from 18 chapters.')
 
 print('[ Done ]')
 exit('Bye..')
